@@ -1,0 +1,74 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Server {
+	
+	
+public Server() throws IOException{
+	//线程池类
+	ExecutorService exec;
+	List<Socket> list = new ArrayList<Socket>();//保存连接的socket对象
+	
+	
+	ServerSocket server = new ServerSocket(2121);
+	exec = Executors.newCachedThreadPool();//缓存型线程池，先看看里面有没有建立过的线程，有酒reuse，没有就把新的线程加入
+	while(true){
+		//等待客户端连接
+	Socket socket = server.accept();
+	list.add(socket);
+	exec.execute(new Tast(socket));  
+	}
+}
+	class Tast implements Runnable{
+		Socket socket;//服务器端socket对象
+		InputStream input = socket.getInputStream();
+	    OutputStream output = socket.getOutputStream();
+	    BufferedReader reader;
+	    BufferedWriter writer;
+	   public Tast(Socket socket) throws IOException{
+			this.socket=socket;
+			reader = new BufferedReader(new InputStreamReader(input));
+	        writer = new BufferedWriter(new OutputStreamWriter(output));
+		    
+		}
+	   public void run(){
+		   try{
+			  String line=null;
+			  line=reader.readLine();
+			  while(reader.readLine()!=null){
+		//字符串反转
+		StringBuffer reread = new StringBuffer(line);
+		String newString = reread.reverse().toString();
+		writer.write(newString);
+		writer.newLine();
+		writer.flush();
+		
+	}
+		   socket.close(); 
+		   }catch(Exception e){
+			   e.printStackTrace();
+		   }
+	   }
+	}
+	
+	
+	
+public static void main(String[] args) throws IOException{
+	new Server();
+}
+	
+	
+   
+}
+
