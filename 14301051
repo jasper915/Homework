@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -21,32 +22,31 @@ public Server() throws IOException{
 	List<Socket> list = new ArrayList<Socket>();//保存连接的socket对象
 	
 	
-	ServerSocket server = new ServerSocket(2121);
+	ServerSocket sserver = new ServerSocket(3333);
 	exec = Executors.newCachedThreadPool();//缓存型线程池，先看看里面有没有建立过的线程，有酒reuse，没有就把新的线程加入
 	while(true){
 		//等待客户端连接
-	Socket socket = server.accept();
+	Socket socket = new Socket();
+	socket = sserver.accept();
 	list.add(socket);
-	exec.execute(new Tast(socket));  
+	exec.execute(new Test(socket));  
 	}
 }
-	class Tast implements Runnable{
-		Socket socket;
-		InputStream input = socket.getInputStream();
-	    OutputStream output = socket.getOutputStream();
+
+	class Test implements Runnable{
+		Socket socket = new Socket();
 	    BufferedReader reader;
 	    BufferedWriter writer;
-	   public Tast(Socket socket) throws IOException{
+	   public Test(Socket socket) throws IOException{
 			this.socket=socket;
-			reader = new BufferedReader(new InputStreamReader(input));
-	        writer = new BufferedWriter(new OutputStreamWriter(output));
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+	        writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 		    
 		}
 	   public void run(){
 		   try{
 			  String line=null;
-			  line=reader.readLine();
-			  while(reader.readLine()!=null){
+			  while((line=reader.readLine())!=null){
 		//字符串反转
 		StringBuffer reread = new StringBuffer(line);
 		String newString = reread.reverse().toString();
@@ -61,10 +61,10 @@ public Server() throws IOException{
 		   }
 	   }
 	}
+		
 	
 	
-	
-public static void main(String[] args) throws IOException{
+public static void main(String[] args) throws Exception{
 	new Server();
 }
 	
